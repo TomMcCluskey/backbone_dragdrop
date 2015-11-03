@@ -14,15 +14,12 @@ var testData = {
 var ContainerView = DropView.extend({
   //
   className: "container",
-  initialize: function() {
-    this.render();
-  },
   render: function() {
     var self = this;
     this.collection.each(function(model) {
       var itemView = new ItemView({model: model, parent: self});
     });
-    this.$el.appendTo( $('body') );
+    this.$el.appendTo($('body'));
   }
       
 });
@@ -30,14 +27,9 @@ var ContainerView = DropView.extend({
 var ItemView = DragView.extend({
   //
   className: "item",
-  initialize: function() {
-    this.render();
-  },
   render: function() {
     this.$el.css( "background-color", this.model.get('name') );
-    //console.log(this);
-    this.$el.appendTo($('body'));
-    // console.log(this.parent.$el);
+    this.$el.appendTo(this.parent.$el);
   }
 });
 

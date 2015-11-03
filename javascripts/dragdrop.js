@@ -41,7 +41,7 @@ var DragdropView = Backbone.View.extend({
         return prop;
       }
     }
-
+    this.render();
   },
   dragItem: function() {
     // This fires an event when the view is dragged
@@ -55,9 +55,22 @@ var DragdropView = Backbone.View.extend({
     // enable dropping
     event.preventDefault();
   },
-  drop: function() {
+  dropItem: function() {
     // This responds to something being dropped on the view
     console.log("drop");
+  },
+  scoot: function() {
+    // For rearranging droppables
+    console.log("scoot");
+    var $spacer = $('<div class="spacer"></div>');
+    $spacer.on('dragleave', function() {this.remove();} );
+    this.$el.before($spacer);
+  },
+  unscoot: function() {
+    // remove spacers from scoot
+    console.log('unscoot');
+    console.log(this.$el);
+    // this.$el.prev('.spacer').remove();
   }
 });
 
@@ -67,7 +80,9 @@ var DragView = DragdropView.extend({
   events: {
     // Uses HTML 5 events
     "dragstart": "dragItem",
-    "dragend"  : "endDragItem"
+    "dragend"  : "endDragItem",
+    "dragover" : "scoot",
+    "dragleave": "unscoot"
   }
 });
 
