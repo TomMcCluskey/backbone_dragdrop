@@ -22,7 +22,9 @@ var DragdropView = Backbone.View.extend({
     "drop"     : "dropItem"
   },
   initialize: function(opts) {
-    // get extra attributes
+    // parent: for DragViews, to list where they live
+    // senders: for DropViews, to list things that want to live there
+    // receivers: for DragViews, to list potential homes
     var self = this;
     if(opts) {
       this.parent = opts.parent;
@@ -86,23 +88,6 @@ var DragdropModel = Backbone.Model.extend({
 
 var DragdropCollection = Backbone.Collection.extend({
   //
+  model: DragdropModel
 });
 
-var ContainerView = DropView.extend({
-  //
-  render : function() {
-    for (var i = 0; i < 4; i++) {
-      var itemView = new ItemView();
-    }
-  }
-      
-});
-
-var ItemView = DragView.extend({
-  //
-});
-
-var container1 = new ContainerView();
-var container2 = new ContainerView();
-var model = new DragdropModel();
-var collection = new DragdropCollection();

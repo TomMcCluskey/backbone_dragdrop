@@ -1,3 +1,17 @@
 body {
   font-family: sans-serif;
 }
+
+.item {
+  float: left;
+  border: 1px solid black;
+  margin: 15px;
+  width: 66px;
+  height: 100px;
+}
+
+.container {
+  border: 5px solid cadetblue;
+  padding: 10px;
+  height: 100px;
+}
