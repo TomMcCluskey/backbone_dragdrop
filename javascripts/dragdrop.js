@@ -21,8 +21,25 @@ var DragdropView = Backbone.View.extend({
     "dragover" : "overValid",
     "drop"     : "dropItem"
   },
-  initialize: function() {
-    //
+  initialize: function(opts) {
+    // get extra attributes
+    var self = this;
+    if(opts) {
+      this.parent = opts.parent;
+      this.senders = arrayify(opts.senders);
+      this.receivers = arrayify(opts.receivers);
+    }
+
+    // helper function to ensure senders & receivers are always arrays
+    function arrayify(prop) {
+      // turns single args into single-item array
+      if (prop && prop.constructor !== Array) {
+        return [prop];
+      } else {
+        return prop;
+      }
+    }
+
   },
   dragItem: function() {
     // This fires an event when the view is dragged
@@ -73,6 +90,12 @@ var DragdropCollection = Backbone.Collection.extend({
 
 var ContainerView = DropView.extend({
   //
+  render : function() {
+    for (var i = 0; i < 4; i++) {
+      var itemView = new ItemView();
+    }
+  }
+      
 });
 
 var ItemView = DragView.extend({
