@@ -10,13 +10,6 @@ body {
   height: 100px;
 }
 
-.spacer {
-  float: left;
-  margin: 15px;
-  width: 66px;
-  height: 100px;
-}
-
 .container {
   border: 5px solid cadetblue;
   height: 130px;

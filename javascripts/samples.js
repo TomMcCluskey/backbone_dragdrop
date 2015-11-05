@@ -20,6 +20,7 @@ var ContainerView = DropView.extend({
       var itemView = new ItemView({model: model, parent: self});
     });
     this.$el.appendTo($('body'));
+    return this;
   }
       
 });
@@ -30,6 +31,7 @@ var ItemView = DragView.extend({
   render: function() {
     this.$el.css( "background-color", this.model.get('name') );
     this.$el.appendTo(this.parent.$el);
+    return this;
   }
 });
 
