@@ -22,6 +22,11 @@ var DragdropView = Backbone.View.extend({
     "drop"     : "dropItem"
   },
   initialize: function(opts) {
+    // TODO: this all gets overwritten if the end user supplies
+    // their own initialize function. Fixing that may require 
+    // doing something with Backbone's extend, which can take a
+    // second argument. Check backbone.js line 1842.
+    //
     // parent: for DragViews, to list where they live
     // senders: for DropViews, to list things that want to live there
     // receivers: for DragViews, to list potential homes
@@ -43,36 +48,47 @@ var DragdropView = Backbone.View.extend({
     }
     this.render();
   },
-  dragItem: function() {
+  dragItem: function(event) {
     // This fires an event when the view is dragged
-    console.log("dragItem");
+    console.log(event);
+    event.originalEvent.dataTransfer.effectAllowed = "move";
+    console.log('dragItem');
   },
-  endDragItem: function() {
+  endDragItem: function(event) {
     // This fires an event when a drag event on the view stops
-    console.log("endDragItem");
+    console.log('endDragItem');
+    console.log(event);
   },
   overValid: function() {
     // enable dropping
     event.preventDefault();
   },
-  dropItem: function() {
+  dropItem: function(event) {
     // This responds to something being dropped on the view
-    console.log("drop");
+    console.log('drop');
+    console.log(event);
   },
   scoot: function() {
     // For rearranging droppables
-    console.log("scoot");
-    var $spacer = $('<div class="spacer"></div>');
-    $spacer.on('dragleave', function() {this.remove();} );
-    this.$el.before($spacer);
+    // $spacer is visible but empty to respond to drag events
+    // $clone is invisible but takes up the right amount of space
+    console.log('scoot');
+    var $spacer = $('<div class="spacer">');
+    $spacer.css('height', '100%' );
+    $spacer.css('width', '100%' );
+    $spacer.css('visibility', 'visible');
+    var $clone = this.$el.clone().css('visibility', 'hidden');
+    $spacer.appendTo($clone);
+    $clone.on('dragleave', function() {this.remove();} );
+    this.$el.before($clone);
   },
   unscoot: function() {
     // remove spacers from scoot
     console.log('unscoot');
-    console.log(this.$el);
+    // console.log(this.$el);
     // this.$el.prev('.spacer').remove();
   }
-});
+}, {color: 'blue'});
 
 var DragView = DragdropView.extend({
   // remove drop-related functionality.
