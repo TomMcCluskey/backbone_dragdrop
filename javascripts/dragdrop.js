@@ -11,7 +11,21 @@
  * the Views fire and use them to move things around.
  */
 
-var DragdropView = Backbone.View.extend({
+// PreInitView from https://github.com/dsbauer/backbone-preinitialize-view
+var PreInitView = Backbone.View.extend({
+  constructor: function() {
+    this.initialize = function(){};
+    Backbone.View.apply(this,arguments);
+    this.__preInit.apply(this,arguments);
+    delete this.initialize;
+    this.initialize.apply(this,arguments);
+  },
+  __preInit: function(opts) {
+    //do overrideable magic
+  }
+});
+
+var DragdropView = PreInitView.extend({
   // the ondragstart attribute is required by Firefox, not Chrome
   attributes: {'draggable'  : 'true',
                'ondragstart': "event.dataTransfer.setData('text/plain', 'This text may be dragged')"},
@@ -22,12 +36,7 @@ var DragdropView = Backbone.View.extend({
     "dragover" : "overValid",
     "drop"     : "dropItem"
   },
-  initialize: function(opts) {
-    // TODO: this all gets overwritten if the end user supplies
-    // their own initialize function. Fixing that may require 
-    // doing something with Backbone's extend, which can take a
-    // second argument. Check backbone.js line 1842.
-    //
+  __preInit: function(opts) {
     // parent: for DragViews, to list where they live
     // senders: for DropViews, to list things that want to live there
     // receivers: for DragViews, to list potential homes

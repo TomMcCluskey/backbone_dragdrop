@@ -14,6 +14,9 @@ var testData = {
 var ContainerView = DropView.extend({
   //
   className: "container",
+  initialize: function() {
+    console.log('container init');
+  },
   render: function() {
     var self = this;
     this.collection.each(function(model) {
@@ -28,6 +31,9 @@ var ContainerView = DropView.extend({
 var ItemView = DragView.extend({
   //
   className: "item",
+  initialize: function() {
+    console.log('item init');
+  },
   render: function() {
     this.$el.css( "background-color", this.model.get('name') );
     this.$el.appendTo(this.parent.$el);
