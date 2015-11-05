@@ -12,8 +12,9 @@
  */
 
 var DragdropView = Backbone.View.extend({
-  //
-  attributes: {'draggable': 'true'},
+  // the ondragstart attribute is required by Firefox, not Chrome
+  attributes: {'draggable'  : 'true',
+               'ondragstart': "event.dataTransfer.setData('text/plain', 'This text may be dragged')"},
   events: {
     // Uses HTML 5 events
     "dragstart": "dragItem",
@@ -81,6 +82,9 @@ var DragdropView = Backbone.View.extend({
     $spacer.appendTo($clone);
     $clone.on('dragleave', function() {this.remove();} );
     this.$el.before($clone);
+    $clone.on('drop', function(event) {
+      console.log(event.currentTarget);
+    });
   },
   unscoot: function() {
     // remove spacers from scoot
@@ -97,8 +101,7 @@ var DragView = DragdropView.extend({
     // Uses HTML 5 events
     "dragstart": "dragItem",
     "dragend"  : "endDragItem",
-    "dragover" : "scoot",
-    "dragleave": "unscoot"
+    "dragover" : "scoot"
   }
 });
 
