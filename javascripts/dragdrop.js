@@ -11,16 +11,18 @@
  * the Views fire and use them to move things around.
  */
 
+var _bbddTemp = {};
+
 // PreInitView from https://github.com/dsbauer/backbone-preinitialize-view
 var PreInitView = Backbone.View.extend({
   constructor: function() {
     this.initialize = function(){};
     Backbone.View.apply(this,arguments);
-    this.__preInit.apply(this,arguments);
+    this._preInit.apply(this,arguments);
     delete this.initialize;
     this.initialize.apply(this,arguments);
   },
-  __preInit: function(opts) {
+  _preInit: function(opts) {
     //do overrideable magic
   }
 });
@@ -31,12 +33,14 @@ var DragdropView = PreInitView.extend({
                'ondragstart': "event.dataTransfer.setData('text/plain', 'This text may be dragged')"},
   events: {
     // Uses HTML 5 events
-    "dragstart": "dragItem",
-    "dragend"  : "endDragItem",
-    "dragover" : "overValid",
-    "drop"     : "dropItem"
+    "dragstart": "_dragItem",
+    "dragend"  : "_endDragItem",
+    "dragover" : "_overValid",
+    "drop"     : "_dropItem"
   },
-  __preInit: function(opts) {
+  _dragOk: false,
+  _dropOk: false,
+  _preInit: function(opts) {
     // parent: for DragViews, to list where they live
     // senders: for DropViews, to list things that want to live there
     // receivers: for DragViews, to list potential homes
@@ -45,6 +49,10 @@ var DragdropView = PreInitView.extend({
       this.parent = opts.parent;
       this.senders = arrayify(opts.senders);
       this.receivers = arrayify(opts.receivers);
+      if(opts.reorder !== false) {
+        this.receivers.push(this.parent);
+      }
+      console.log(opts);
     }
 
     // helper function to ensure senders & receivers are always arrays
@@ -53,32 +61,56 @@ var DragdropView = PreInitView.extend({
       if (prop && prop.constructor !== Array) {
         return [prop];
       } else {
-        return prop;
+        return prop || [];
       }
     }
+    // this._sendListener();
+    this._receiveListener();
     this.render();
   },
-  dragItem: function(event) {
+  _sendListener: function() {
+    // Probably can't be used practically, as it requires super Views
+    // to know about sub Views on initialize. Though could be worth
+    // setting up for edge cases.
+    this.senders.forEach(function(sender) {
+      this.listenTo(sender, 'bbdd:drag', function(x) {
+        console.log('x');
+        console.log(x);
+        // need to prevent default on dragover event
+      });
+    });
+  },
+  _receiveListener: function() {
+    // Used by drag views to warn approved drop zones about incoming
+  },
+  _dragItem: function(event) {
     // This fires an event when the view is dragged
     console.log(event);
+    _bbddTemp.dragger = this;
+    event.dataTransfer = 'true';
     event.originalEvent.dataTransfer.effectAllowed = "move";
     console.log('dragItem');
   },
-  endDragItem: function(event) {
+  _endDragItem: function(event) {
     // This fires an event when a drag event on the view stops
     console.log('endDragItem');
     console.log(event);
+    event.dataTransfer = '';
+    this.trigger('bbdd:send', this);
+    _bbddTemp.dragger = null;
   },
-  overValid: function() {
+  _overValid: function() {
     // enable dropping
     event.preventDefault();
   },
-  dropItem: function(event) {
+  _dropItem: function(event) {
     // This responds to something being dropped on the view
+    var self = this;
+    this.trigger('bbdd:receive', this);
     console.log('drop');
     console.log(event);
   },
-  scoot: function() {
+  _scoot: function() {
     // For rearranging droppables
     // $spacer is visible but empty to respond to drag events
     // $clone is invisible but takes up the right amount of space
@@ -92,10 +124,11 @@ var DragdropView = PreInitView.extend({
     $clone.on('dragleave', function() {this.remove();} );
     this.$el.before($clone);
     $clone.on('drop', function(event) {
-      console.log(event.currentTarget);
+      console.log('scoot drop');
+      console.log(event);
     });
   },
-  unscoot: function() {
+  _unscoot: function() {
     // remove spacers from scoot
     console.log('unscoot');
     // console.log(this.$el);
