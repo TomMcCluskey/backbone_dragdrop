@@ -65,7 +65,6 @@ var DragdropView = PreInitView.extend({
       }
     }
     // this._sendListener();
-    this._receiveListener();
     this.render();
   },
   _sendListener: function() {
@@ -80,11 +79,11 @@ var DragdropView = PreInitView.extend({
       });
     });
   },
-  _receiveListener: function() {
-    // Used by drag views to warn approved drop zones about incoming
-  },
   _dragItem: function(event) {
     // This fires an event when the view is dragged
+    this.receivers.forEach(function(receiver) {
+      receiver._dropOk = true;
+    });
     console.log(event);
     _bbddTemp.dragger = this;
     event.dataTransfer = 'true';
@@ -98,6 +97,9 @@ var DragdropView = PreInitView.extend({
     event.dataTransfer = '';
     this.trigger('bbdd:send', this);
     _bbddTemp.dragger = null;
+    this.receivers.forEach(function(receiver) {
+      receiver._dropOk = false;
+    });
   },
   _overValid: function() {
     // enable dropping
@@ -110,10 +112,13 @@ var DragdropView = PreInitView.extend({
     console.log('drop');
     console.log(event);
   },
-  _scoot: function() {
+  _scoot: function(event) {
     // For rearranging droppables
     // $spacer is visible but empty to respond to drag events
     // $clone is invisible but takes up the right amount of space
+    // This should just be one of many possible behaviors.
+    // For example, stacking freecell cards shoul dbe possible.
+    // This means that the $clone may not always be used.
     console.log('scoot');
     var $spacer = $('<div class="spacer">');
     $spacer.css('height', '100%' );
@@ -127,12 +132,6 @@ var DragdropView = PreInitView.extend({
       console.log('scoot drop');
       console.log(event);
     });
-  },
-  _unscoot: function() {
-    // remove spacers from scoot
-    console.log('unscoot');
-    // console.log(this.$el);
-    // this.$el.prev('.spacer').remove();
   }
 }, {color: 'blue'});
 
@@ -141,9 +140,9 @@ var DragView = DragdropView.extend({
   // this is something that gets dragged and dropped.
   events: {
     // Uses HTML 5 events
-    "dragstart": "dragItem",
-    "dragend"  : "endDragItem",
-    "dragover" : "scoot"
+    "dragstart": "_dragItem",
+    "dragend"  : "_endDragItem",
+    "dragover" : "_scoot"
   }
 });
 
@@ -153,8 +152,8 @@ var DropView = DragdropView.extend({
   attributes: {'draggable': 'false'},
   events: {
     // Uses HTML 5 events
-    "dragover" : "overValid",
-    "drop"     : "dropItem"
+    "dragover" : "_overValid",
+    "drop"     : "_dropItem"
   }
 });
 
