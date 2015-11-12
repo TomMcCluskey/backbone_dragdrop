@@ -35,7 +35,7 @@ var DragdropView = PreInitView.extend({
     // Uses HTML 5 events
     "dragstart": "_dragItem",
     "dragend"  : "_endDragItem",
-    "dragover" : "_overValid",
+    "dragover" : "_behave",
     "drop"     : "_dropItem"
   },
   _dragOk: false,
@@ -45,8 +45,10 @@ var DragdropView = PreInitView.extend({
     // senders: for DropViews, to list things that want to live there
     // receivers: for DragViews, to list potential homes
     var self = this;
+    this.el.view = self; // for backreferencing from el to view
     if(opts) {
       this.parent = opts.parent;
+      this.behavior = opts.behavior;
       this.senders = arrayify(opts.senders);
       this.receivers = arrayify(opts.receivers);
       if(opts.reorder !== false) {
@@ -65,7 +67,6 @@ var DragdropView = PreInitView.extend({
       }
     }
     // this._sendListener();
-    this._receiveListener();
     this.render();
   },
   _sendListener: function() {
@@ -80,11 +81,11 @@ var DragdropView = PreInitView.extend({
       });
     });
   },
-  _receiveListener: function() {
-    // Used by drag views to warn approved drop zones about incoming
-  },
   _dragItem: function(event) {
     // This fires an event when the view is dragged
+    this.receivers.forEach(function(receiver) {
+      receiver._dropOk = true;
+    });
     console.log(event);
     _bbddTemp.dragger = this;
     event.dataTransfer = 'true';
@@ -98,10 +99,14 @@ var DragdropView = PreInitView.extend({
     event.dataTransfer = '';
     this.trigger('bbdd:send', this);
     _bbddTemp.dragger = null;
+    this.receivers.forEach(function(receiver) {
+      receiver._dropOk = false;
+    });
   },
-  _overValid: function() {
+  _overValid: function(event) {
     // enable dropping
     event.preventDefault();
+    this._behave(event);
   },
   _dropItem: function(event) {
     // This responds to something being dropped on the view
@@ -110,29 +115,41 @@ var DragdropView = PreInitView.extend({
     console.log('drop');
     console.log(event);
   },
-  _scoot: function() {
+  _behave: function(event) {
+    console.log(this);
+    //
+    switch (typeof this.behavior) {
+      case 'string':
+        this['_' + this.behavior](this, event.currentTarget.view, event);
+        break;
+      case 'function':
+        this.behavior(this, event.currentTarget.view, event);
+        break;
+      default:
+        event.preventDefault();
+        console.log('no behaviors enabled');
+    }
+  },
+  _scoot: function(view, dragger, event) {
     // For rearranging droppables
     // $spacer is visible but empty to respond to drag events
     // $clone is invisible but takes up the right amount of space
+    // This should just be one of many possible behaviors.
+    // For example, stacking freecell cards shoul dbe possible.
+    // This means that the $clone may not always be used.
     console.log('scoot');
     var $spacer = $('<div class="spacer">');
     $spacer.css('height', '100%' );
     $spacer.css('width', '100%' );
     $spacer.css('visibility', 'visible');
-    var $clone = this.$el.clone().css('visibility', 'hidden');
+    var $clone = view.$el.clone().css('visibility', 'hidden');
     $spacer.appendTo($clone);
     $clone.on('dragleave', function() {this.remove();} );
-    this.$el.before($clone);
+    view.$el.before($clone);
     $clone.on('drop', function(event) {
       console.log('scoot drop');
       console.log(event);
     });
-  },
-  _unscoot: function() {
-    // remove spacers from scoot
-    console.log('unscoot');
-    // console.log(this.$el);
-    // this.$el.prev('.spacer').remove();
   }
 }, {color: 'blue'});
 
@@ -141,9 +158,9 @@ var DragView = DragdropView.extend({
   // this is something that gets dragged and dropped.
   events: {
     // Uses HTML 5 events
-    "dragstart": "dragItem",
-    "dragend"  : "endDragItem",
-    "dragover" : "scoot"
+    "dragstart": "_dragItem",
+    "dragend"  : "_endDragItem",
+    "dragover" : "_overValid"
   }
 });
 
@@ -153,8 +170,8 @@ var DropView = DragdropView.extend({
   attributes: {'draggable': 'false'},
   events: {
     // Uses HTML 5 events
-    "dragover" : "overValid",
-    "drop"     : "dropItem"
+    "dragover" : "_overValid",
+    "drop"     : "_dropItem"
   }
 });
 
