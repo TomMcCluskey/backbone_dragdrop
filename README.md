@@ -25,3 +25,23 @@ The emphasis in this library is on keeping everything as simple and familiar to 
 ### Drop View
 
 *senders:* In progress. Will enable things other than those listed in a drag view's `receivers` to be dropped.
+
+## Working Notes
+
+At present, there is a built-in `scoot` method. This means that views that get dragged over will scoot out of the way, which is nice for some applications (like RoboDerby), but not for others (like FreeCell). The ideal then is to have a couple of default behaviors (like scoot, stack, swap, etc) and the possibility of passing in a callback. This would mean that DragView invocations would look like:
+
+```
+var item = new DragView({
+  model   : model,
+  parent  : parent,
+  behavior: 'scoot'
+});
+```
+
+Where the `behavior` attribute defines what the view does on dragover. In addition to whatever built-in behaviors are implemented, the user should be able to specify a callback function which will take three parameters:
+
+```
+function customBehavior( dragoverView, draggedView, event) {};
+```
+
+If the `behavior` attribute is not defined, views will not do anything on dragover.

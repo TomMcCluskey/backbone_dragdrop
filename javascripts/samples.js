@@ -20,7 +20,8 @@ var ContainerView = DropView.extend({
   render: function() {
     var self = this;
     this.collection.each(function(model) {
-      var itemView = new ItemView({model: model, parent: self});
+      var itemView = new ItemView({model: model, parent: self, behavior: 'scoot'});
+      items.push(itemView);
     });
     this.$el.appendTo($('body'));
     return this;
@@ -43,6 +44,7 @@ var ItemView = DragView.extend({
 
 var collection;
 var container1;
+var items = [];
 $( function() {
   collection = new DragdropCollection(testData.items);
   container1 = new ContainerView({collection: collection});
