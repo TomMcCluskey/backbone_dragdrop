@@ -35,7 +35,7 @@ var DragdropView = PreInitView.extend({
     // Uses HTML 5 events
     "dragstart": "_dragItem",
     "dragend"  : "_endDragItem",
-    "dragover" : "_behave",
+    "dragover" : "_dragover",
     "drop"     : "_dropItem"
   },
   _dragOk: false,
@@ -51,10 +51,9 @@ var DragdropView = PreInitView.extend({
       this.behavior = opts.behavior;
       this.senders = arrayify(opts.senders);
       this.receivers = arrayify(opts.receivers);
-      if(opts.reorder !== false) {
+      if(opts.putBack !== false && this.parent) {
         this.receivers.push(this.parent);
       }
-      console.log(opts);
     }
 
     // helper function to ensure senders & receivers are always arrays
@@ -103,11 +102,6 @@ var DragdropView = PreInitView.extend({
       receiver._dropOk = false;
     });
   },
-  _overValid: function(event) {
-    // enable dropping
-    event.preventDefault();
-    this._behave(event);
-  },
   _dropItem: function(event) {
     // This responds to something being dropped on the view
     var self = this;
@@ -115,9 +109,10 @@ var DragdropView = PreInitView.extend({
     console.log('drop');
     console.log(event);
   },
-  _behave: function(event) {
-    console.log(this);
-    //
+  _dragover: function(event) {
+    // This controls behavior when something is dragged over the view.
+    // Can respond to callbacks or to strings indicating built-ins.
+    event.preventDefault();
     switch (typeof this.behavior) {
       case 'string':
         this['_' + this.behavior](this, event.currentTarget.view, event);
@@ -127,7 +122,6 @@ var DragdropView = PreInitView.extend({
         break;
       default:
         event.preventDefault();
-        console.log('no behaviors enabled');
     }
   },
   _scoot: function(view, dragger, event) {
@@ -160,7 +154,7 @@ var DragView = DragdropView.extend({
     // Uses HTML 5 events
     "dragstart": "_dragItem",
     "dragend"  : "_endDragItem",
-    "dragover" : "_overValid"
+    "dragover" : "_dragover"
   }
 });
 
@@ -170,7 +164,7 @@ var DropView = DragdropView.extend({
   attributes: {'draggable': 'false'},
   events: {
     // Uses HTML 5 events
-    "dragover" : "_overValid",
+    "dragover" : "_dragover",
     "drop"     : "_dropItem"
   }
 });

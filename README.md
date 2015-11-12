@@ -16,11 +16,11 @@ The emphasis in this library is on keeping everything as simple and familiar to 
 
 ### Drag View
 
-*parent:* A View that is draggable is presumed to be a child view of a Drop View. It expects to be passed a `parent` attribute referencing the View that contains it. By default, it will enable dropping on the `parent` View, so that drag views can be reordered.
+*parent:* An optional View that is draggable is presumed to be a child view of a Drop View. It expects to be passed a `parent` attribute referencing the View that contains it. By default, it will enable dropping on the `parent` View, so that drag views can be reordered.
 
 *receivers:* To enable the view to be dropped on drop views other than its parent view, you can include them in the `receivers` array on view creation.
 
-*reorder:* If you don't want a draggable view to be able to be dropped on its parent, you can pass in `{reorder: false}` on drag view creation.
+*putBack:* If you don't want a draggable view to be able to be dropped where it came from, you can pass in `{putBack: false}` on drag view creation.
 
 ### Drop View
 
