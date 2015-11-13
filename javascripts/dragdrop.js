@@ -110,18 +110,21 @@ var DragdropView = PreInitView.extend({
     console.log(event);
   },
   _dragover: function(event) {
-    // This controls behavior when something is dragged over the view.
-    // Can respond to callbacks or to strings indicating built-ins.
-    event.preventDefault();
-    switch (typeof this.behavior) {
-      case 'string':
-        this['_' + this.behavior](this, event.currentTarget.view, event);
-        break;
-      case 'function':
-        this.behavior(this, event.currentTarget.view, event);
-        break;
-      default:
-        event.preventDefault();
+    console.log(this);
+    if(this._dropOk || this.parent._dropOk) {
+      // This controls behavior when something is dragged over the view.
+      // Can respond to callbacks or to strings indicating built-ins.
+      event.preventDefault();
+      switch (typeof this.behavior) {
+        case 'string':
+          this['_' + this.behavior](this, event.currentTarget.view, event);
+          break;
+        case 'function':
+          this.behavior(this, event.currentTarget.view, event);
+          break;
+        default:
+          event.preventDefault();
+      }
     }
   },
   _scoot: function(view, dragger, event) {

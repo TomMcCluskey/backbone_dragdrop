@@ -16,7 +16,7 @@ The emphasis in this library is on keeping everything as simple and familiar to 
 
 ### Drag View
 
-*parent:* An optional View that is draggable is presumed to be a child view of a Drop View. It expects to be passed a `parent` attribute referencing the View that contains it. By default, it will enable dropping on the `parent` View, so that drag views can be reordered.
+*parent:* An optional View that is draggable is presumed to be a child view of a Drop View. It expects to be passed a `parent` attribute referencing the View that contains it. By default, it will enable dropping on the `parent` View, so that drag views can be reordered. Parent is also required for behaviors like scoot to work.
 
 *receivers:* To enable the view to be dropped on drop views other than its parent view, you can include them in the `receivers` array on view creation.
 
